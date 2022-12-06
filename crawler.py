@@ -47,26 +47,25 @@ class Crawler():
 		
 		def scrape_links(self,html):
 			soup = BeautifulSoup(html,'html.parser')
-				
+			
 				 
-			product=soup.find (id="products-container")
-			divs=product.find_all('div',class_="s1" )
+			products_div=soup.find (id="products-container")
+			product_divs=products_div.find_all('div',class_="price" )
 
-			#print(len(divs))
-			for div in divs:
-				price=div.find('div',class_="price")
-				#print(price)
-				a=div.find('a')
-				print(a['href'])
+			print(len(product_divs))
+			for div in product_divs:
+				price=div.find_all('div',class_="price")
+				print(price)
 				
-			for div in divs:
-				model=div.find('div',class_="disc" )
-				print(model)
 				
-		def page_links(self,url):
-			print(url)
+			#for div in divs:
+				#model=div.find('div',class_="disc" )
+				#print(model)
 				
-
+		#def page_links(self,url):
+			#print(url)
+				
+			
 		def run(self):
 			""" run the crawler for each url in seed
 						Use multithreading for each GET request
@@ -75,11 +74,11 @@ class Crawler():
 			for url in self.seed:
 					self.get_html(url)
 					html=self.get_html(url)
-					self.write_to_file('jarcomputers.com.html',html)
+					self.write_to_file('jarcomputers.com',html)
 					links=self.scrape_links(html)
-					main_url="https://www.jarcomputers.com/"
-					urls = [ main_url+ el  for el in links]
-					print(urls)
+					#main_url="https://www.jarcomputers.com/"
+					#urls = [ main_url+el  for el in links]
+					#print(urls)
 
 					print('finishito')
 
