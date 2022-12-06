@@ -55,6 +55,7 @@ class Crawler():
         print(len(divs))
         for div in divs:
             price=div.find('div',class_="price")
+		print(price)
 			
 
             a=div.find('a')
