@@ -42,25 +42,21 @@ class Crawler():
 				r=requests.get(url)
 				if r.ok:
 			
-					return r.text;
+					return r.text
 		
 		
 		def scrape_links(self,html):
 			soup = BeautifulSoup(html,'html.parser')
 			
-				 
-			products_div=soup.find (id="products-container")
-			product_divs=products_div.find_all('div',class_="price" )
-
-			print(len(product_divs))
-			for div in product_divs:
-				price=div.find_all('div',class_="price")
+			
+			products = soup.find(id="products-container" )
+			print(products.text)
+			divs = products.find_all('div', class_="row-price")
+			print(len(divs))
+				
+			for div in divs:
+				price=div.find('div',class_="price")
 				print(price)
-				
-				
-			#for div in divs:
-				#model=div.find('div',class_="disc" )
-				#print(model)
 				
 		#def page_links(self,url):
 			#print(url)
