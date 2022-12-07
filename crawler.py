@@ -45,7 +45,7 @@ class Crawler():
 					return r.text
 		
 		
-		def scrape_links(self,html):
+		def price_links(self,html):
 			soup = BeautifulSoup(html,'html.parser')
 			
 			
@@ -57,9 +57,50 @@ class Crawler():
 			for div in divs:
 				price=div.find('div',class_="price")
 				print(price.text)
+
+		def links_model(self,html):
+			soup = BeautifulSoup(html,'html.parser')
+			brand=soup.find(id="products-container" )
+			print(brand.string)
+			divs=brand.find_all('div',class_="s2")
+			#print(len(divs))
+			for div in divs:
+				model=div.find('div',class_="brand-name")
 				
-		#def page_links(self,url):
-			#print(url)
+				print(model.text)
+				rx=re.compile( r'(^$ +[A-Z]+$).')
+				
+
+				m =rx.search(str(model))
+				if m: 
+					model=str(m.group(1))
+					print(model)
+					rx=re.compile('^([A-Z])-?$')
+					m =rx.search(str(model))
+					print(model)
+				
+				
+				
+				
+				
+				
+				
+				
+			
+			
+			
+			
+
+			
+
+
+
+
+
+
+			
+		
+			
 				
 			
 		def run(self):
@@ -71,11 +112,12 @@ class Crawler():
 					self.get_html(url)
 					html=self.get_html(url)
 					self.write_to_file('jarcomputers.com',html)
-					links=self.scrape_links(html)
+					links=self.price_links(html)
 					#main_url="https://www.jarcomputers.com/"
 					#urls = [ main_url+el  for el in links]
 					#print(urls)
-
+					page=self.links_model(html)
+					
 					print('finishito')
 
 #if __name__ == '__main__':
