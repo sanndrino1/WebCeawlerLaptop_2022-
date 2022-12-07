@@ -50,13 +50,13 @@ class Crawler():
 			
 			
 			products = soup.find(id="products-container" )
-			print(products.text)
+			print(products.string)
 			divs = products.find_all('div', class_="row-price")
 			print(len(divs))
 				
 			for div in divs:
 				price=div.find('div',class_="price")
-				print(price)
+				print(price.text)
 				
 		#def page_links(self,url):
 			#print(url)
