@@ -15,7 +15,7 @@ except:
 		from libs.constant import DATA_PATH
 
 class Crawler():
-		def __init__(self, base_url):
+		def __init__(self):
 				self.curent_page=1;
 				self.url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref="
 				self.seed=[]
@@ -44,59 +44,59 @@ class Crawler():
 
 				:param url: string
 				"""
-				r=requests.get(url)
+				try:
+					r = requests.get(url)
+				except requests.RequestException:
+				# try with SSL verification disabled.
+				# this is just a dirty workaraound
+				# check https://levelup.gitconnected.com/solve-the-dreadful-certificate-issues-in-python-requests-module-2020d922c72f
+					r = requests.get(url,verify=False)
+				except Exception as e:
+					print(f'Can not get url: {url}: {str(e)}!')
+					exit(-1)
+
+				# set content encoding explicitely
+				r.encoding="utf-8"
+				
+
+				#print(f'Can not get url: {url}: {str(e)}!')
+				exit(-1)
+
+				
+
+				r = requests.get(url,verify=False)
 				if r.ok:
 			
-					return r.text
-		#def bucks_page(self,html):
-			#soup = BeautifulSoup(html,'html.parser')
-			#data=list()
-			#links_lap_top=soup.find(id="products_container")
-			
-			
-			
-			#link_laps=links_lap_top.find_all(class_="p1")
-			#for div in link_laps:
-				#a=div.a
-				#print(a)
+						return r.text
+				else:
 
-				
-				#print(a)
+					print('The server did not return success response. Bye...')
+					exit
+		
 
 				
 		
 		
-		def mode_price_links(self,html):
-			soup = BeautifulSoup(html,'html.parser')
-			
-			
-			products = soup.find(id="products-container" )
-			print(products.string)
-			divs = products.find_all('div', class_="s2")
-			#print(len(divs))
-				
-			for div in divs:
-				price=div.find('div',class_="brand-name")
-				print(price.text)
 		
-			
-
-
 		def get_seed(self):
+			
+		
 			page_links=[]
 			
-			page_url=self.url=self.curent_page
+			page_url=self.url=str(self.curent_page)
 			html=self.get_html(page_url)
 			soup = BeautifulSoup(html,'html.parser')
 		
-			brand=soup.find(id="products-container" )
+			products=soup.find('div',id="central_main")
+			
+		#id="products-container" )
 			#print(brand.string)
-			divs=brand.find_all('div', class_="row-price") 
+			divs=products.find_all('div', id="products_container") 
 			print(len(divs))
 			for div in divs:
-				model=div.find('div',  lass_="price"  )
+				price=div.find( id="product_list" )
 				
-				
+			
 				a=div.find('a')
 				
 				page_links.append(urljoin(BASE_URL, a['href']))
@@ -105,37 +105,28 @@ class Crawler():
 				self.seed=[*self.seed,*page_links]
 				self.curent_page+=1
 				self.get_seed()
-
-
-			
-					
-				
-		def ekran_page(self,html):
+		def get_rule_page(self,html):
 			soup = BeautifulSoup(html,'html.parser')
-			date=list()
-			stil_products=soup.find( id="products-container" )
-			print(stil_products.string)
-			
-			stil_product=stil_products.find_all('div',class_="s2")
-			for span in stil_product:
-				ekran=span.find('span', class_="short_title fn" )
-				rx = re.compile(r'[0-9][0-9][0-9]')
 
-				match = re.search(str(ekran))
-				print( match)
-				
-				#print(ekran.text,'uuuuuuuuuuuuuuukkkkkkkkkkkk')
-				
+			product_name=soup.find('div',id="product_name")
+			title=product_name.find('h1').getText(strip=True)
+			rule_page=product_name.find('span', class_="short_title fn")
+			price=product_name.find('div',class_="price">1348 )
+
+			return {
+				'title': title,
+				'rule_page': rule_page,
+				'price':price
+
+			}
 			
-				
+
+
+			
 					
-			
-
-
-
-
-			
+				
 		
+				#print(ekran.text,'uuuuuuuuuuuuuuukkkkkkkkkkkk'
 			
 				
 			
@@ -145,14 +136,17 @@ class Crawler():
 
 			"""
 
-			
 			self.get_seed()
+			print(self.seed)
 			
-					
+			
+			for url in [1]:
+				page_html=self.get_html("https://www.jarcomputers.com/Laptopi_cat_2.html?ref=1")
+				date=self.get_rule_page(page_html)
+				print(date)
 					
 			print('finishito')
-
 if __name__ == '__main__':
 	
-	crawler = Crawler( "https://www.jarcomputers.com/Laptopi_cat_2.html?ref=c_1")
+	crawler = Crawler()
 	crawler.run()
