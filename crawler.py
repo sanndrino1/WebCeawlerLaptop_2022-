@@ -2,8 +2,13 @@ import requests
 import os
 from bs4 import BeautifulSoup 
 import re
+from urllib.parse import urljoin
 
-BASE_URL = "https://www.jarcomputers.com/"
+import urllib3
+
+
+BASE_URL="https://www.jarcomputers.com"
+
 
 
 
@@ -15,10 +20,13 @@ except:
 		from libs.constant import DATA_PATH
 
 class Crawler():
-		def __init__(self):
-				self.curent_page=1;
-				self.url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref="
-				self.seed=[]
+		def __init__(self,base_url):
+			self.curent_page=1
+			self.base_url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref=#"
+			self.seed=[]
+			
+			self.base_url= base_url;
+			self.seed=[]
 				
 				
 				
@@ -44,34 +52,17 @@ class Crawler():
 
 				:param url: string
 				"""
-				try:
-					r = requests.get(url)
-				except requests.RequestException:
-				# try with SSL verification disabled.
-				# this is just a dirty workaraound
-				# check https://levelup.gitconnected.com/solve-the-dreadful-certificate-issues-in-python-requests-module-2020d922c72f
-					r = requests.get(url,verify=False)
-				except Exception as e:
-					print(f'Can not get url: {url}: {str(e)}!')
-					exit(-1)
-
-				# set content encoding explicitely
-				r.encoding="utf-8"
+				
 				
 
-				#print(f'Can not get url: {url}: {str(e)}!')
-				exit(-1)
-
-				
-
-				r = requests.get(url,verify=False)
+				r = requests.get(url)
 				if r.ok:
 			
 						return r.text
 				else:
 
 					print('The server did not return success response. Bye...')
-					exit
+					exit()
 		
 
 				
@@ -80,55 +71,33 @@ class Crawler():
 		
 		def get_seed(self):
 			
-		
-			page_links=[]
-			
-			page_url=self.url=str(self.curent_page)
+			page_links = []
+			page_url=self.base_url+str(self.curent_page)
 			html=self.get_html(page_url)
-			soup = BeautifulSoup(html,'html.parser')
-		
-			products=soup.find('div',id="central_main")
-			
-		#id="products-container" )
-			#print(brand.string)
-			divs=products.find_all('div', id="products_container") 
+			soup=BeautifulSoup(html,'html.parser')
+			contact=soup.find(id="products-container")
+			print(len(contact))
+			divs=contact.find_all('div',class_="s3")
 			print(len(divs))
 			for div in divs:
-				price=div.find( id="product_list" )
+				date=div.find('div',class_="row-price")
+
 				
-			
+				print(date)
+				
+				
+					
+			#if date<3000:
 				a=div.find('a')
 				
-				page_links.append(urljoin(BASE_URL, a['href']))
+				
+				
+			
+				page_links.append( urljoin(BASE_URL,a['href']))
 			if page_links:
-
-				self.seed=[*self.seed,*page_links]
-				self.curent_page+=1
+				self.seed =[*self.seed *page_links]
+				self.curent_page+=1#
 				self.get_seed()
-		def get_rule_page(self,html):
-			soup = BeautifulSoup(html,'html.parser')
-
-			product_name=soup.find('div',id="product_name")
-			title=product_name.find('h1').getText(strip=True)
-			rule_page=product_name.find('span', class_="short_title fn")
-			price=product_name.find('div',class_="price">1348 )
-
-			return {
-				'title': title,
-				'rule_page': rule_page,
-				'price':price
-
-			}
-			
-
-
-			
-					
-				
-		
-				#print(ekran.text,'uuuuuuuuuuuuuuukkkkkkkkkkkk'
-			
-				
 			
 		def run(self):
 			""" run the crawler for each url in seed
@@ -137,16 +106,16 @@ class Crawler():
 			"""
 
 			self.get_seed()
-			print(self.seed)
+			
 			
 			
 			for url in [1]:
-				page_html=self.get_html("https://www.jarcomputers.com/Laptopi_cat_2.html?ref=1")
-				date=self.get_rule_page(page_html)
-				print(date)
-					
+				page_html=self.get_html("https://www.jarcomputers.com/Laptopi_cat_2.html?ref=")
+				#date=self.get_rule_page(page_html)
+				
+				
 			print('finishito')
-if __name__ == '__main__':
-	
-	crawler = Crawler()
-	crawler.run()
+#if __name__ == '__main__':
+	#base_url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref="
+	#crawler = Crawler(base_url)
+	#crawler.run()
