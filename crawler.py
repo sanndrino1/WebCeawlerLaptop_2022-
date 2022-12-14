@@ -1,9 +1,11 @@
-import requests
+
 import os
-from bs4 import BeautifulSoup 
 import re
+import requests
+import datetime
 
-
+from bs4 import BeautifulSoup
+from urllib.parse import urljoin
 
 
 
@@ -95,26 +97,35 @@ class Crawler():
 
 				
 				print(str(date))
+				
+
 				rx = re.compile(r'(\d+)')
 				m =rx.search(str(date))
 
 				if m:
 					date = int(m.group(1))
 					print(date)
+				
 					
+			if date <2500:
 				a=div.find('a')
+				
+				
 		
-			page_links.append( urljoin(BASE_URL,a['href']))
+				page_links.append( urljoin(BASE_URL,a['href']))
+
+
 			if page_links:
 				self.seed =[*self.seed *page_links]
 				self.curent_page+=1
 				self.get_seed()
-		def page_datas(self,html):
+		def page_data(self,html):
 			soup=BeautifulSoup(html,'html.paresr')
 			product=soup.find('divi' ,id="content" )
 			title=product.find('h1').getText(strip=True)
 			pat_date=product.find('div',class_="price")
 			size_li=product.find('b')
+			
 			return{
 				'title':title,
 				'pat_date':pat_date,
@@ -131,18 +142,19 @@ class Crawler():
 
 			"""
 
+			#self.get_seed(self)
 			self.get_seed()
-
+			print(f'Seed contains {len(self.seed)} urls')			
 			
 			
 			
 			for url in self.seed:
 				page_html=self.get_html(url)
-				date=self.get_page_data(page_html)
+				date=self.page_data(page_html)
 				
 				
 			print('finishito')
 if __name__ == '__main__':
-	#base_url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref="
+	base_url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref="
 	crawler = Crawler()
 	crawler.run()
