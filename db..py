@@ -1,9 +1,12 @@
 import mysql.connector as mc
-
+from read_config import read_db_config
 try:
 	from lib.config_ini import read_db_config
 except:
-	from read_confing import read_db_config
+	from  read_confing import read_db_config
+
+import mysql.connector as mc
+from read_config import read_db_config
 
 class DB():
 	def __init__(self):
@@ -11,19 +14,16 @@ class DB():
 		print(mysql_config)
 		try:
 			self.conn = mc.connect(**mysql_config)
-
-			# self.drop_radiotheaters_table()
-			# self.create_radiotheaters_table()
 		except mc.Error as e:
 			print(e)
 
 
 	def create_radiotheaters_table(self):
 		sql = """
-			CREATE TABLE IF NOT EXISTS radiotheaters(
+			CREATE TABLE IF NOT EXISTS laptop_db(
 				id INT AUTO_INCREMENT PRIMARY KEY,
 				title VARCHAR(100) NOT NULL,
-				pub_date DATE NOT NULL,
+				page_date DATE NOT NULL,
 				content TEXT,
 				created_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
 				updated_at timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -35,34 +35,37 @@ class DB():
 			cursor.execute(sql)
 			self.conn.commit()
 
-	def drop_radiotheaters_table(self):
-		sql = "DROP TABLE IF EXISTS radiotheaters";
+	def drop_laptop_db_table(self):
+		sql = "DROP TABLE IF EXISTS laptop_db";
 
 		with self.conn.cursor() as cursor:
 			cursor.execute(sql)
 			self.conn.commit()
 
-	def truncate_radiotheaters_table(self):
-		sql = "truncate radiotheaters";
+	def insert_rows(self, rows_data):
+		sql = """
+			INSERT IGNORE INTO laptop_db
+			(title, page_date, content)
+			VALUES ( %s, %s, %s)
+		"""
 
 		with self.conn.cursor() as cursor:
-			cursor.execute(sql)
+			cursor.executemany(sql, rows_data)
 			self.conn.commit()
-
 
 	def insert_row(self, row_data):
 		sql = """
-			INSERT IGNORE INTO radiotheaters
-				(title, pub_date, content)
+			INSERT IGNORE INTO laptop_db
+				(title, page_date, content)
 				VALUES ( %s, %s, %s)
 		"""
 
 		with self.conn.cursor(prepared=True) as cursor:
-			cursor.execute(sql, row_data)
+			cursor.execute(sql, tuple(row_data.values()))
 			self.conn.commit()
 
 	def select_all_data(self):
-		sql = "SELECT id, title, pub_date, content FROM  radiotheaters"
+		sql = "SELECT id, title, page_date, content FROM  laptop_db"
 
 		with self.conn.cursor() as cursor:
 			cursor.execute(sql)
@@ -71,7 +74,7 @@ class DB():
 		return result
 
 	def get_last_updated_date(self):
-		sql = 'SELECT MAX(updated_at) AS "Max Date" FROM radiotheaters;'
+		sql = 'SELECT MAX(updated_at) AS "Max Date" FROM  laptop_db;'
 		with self.conn.cursor() as cursor:
 			cursor.execute(sql)
 			result = cursor.fetchone()
@@ -82,7 +85,7 @@ class DB():
 			raise ValueError('No data in table')
 
 	def get_column_names(self):
-		sql = "SELECT id, title, pub_date, content FROM  radiotheaters LIMIT 1;"
+		sql = "SELECT id, title, page_date, content FROM  laptop_db LIMIT 1;"
 
 		with self.conn.cursor() as cursor:
 			cursor.execute(sql)
@@ -93,6 +96,6 @@ class DB():
 if __name__ == '__main__':
 	db = DB()
 
-	db.get_column_names()
-	res = db.select_all_data()
+	# db.get_column_names()
+	res = db.get_last_updated_date()
 	print(res)
