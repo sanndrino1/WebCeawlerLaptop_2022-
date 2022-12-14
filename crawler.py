@@ -2,9 +2,9 @@ import requests
 import os
 from bs4 import BeautifulSoup 
 import re
-from urllib.parse import urljoin
 
-import urllib3
+
+
 
 
 BASE_URL="https://www.jarcomputers.com"
@@ -20,14 +20,12 @@ except:
 		from libs.constant import DATA_PATH
 
 class Crawler():
-		def __init__(self,base_url):
+		def __init__(self):
 			self.curent_page=1
-			self.base_url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref=#"
+			self.base_url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref=1"
 			self.seed=[]
 			
-			self.base_url= base_url;
-			self.seed=[]
-				
+			
 				
 				
 
@@ -52,6 +50,19 @@ class Crawler():
 
 				:param url: string
 				"""
+				try:
+					r = requests.get(url)
+				except requests.RequestException:
+			# try with SSL verification disabled.
+			# this is just a dirty workaraound
+			# check https://levelup.gitconnected.com/solve-the-dreadful-certificate-issues-in-python-requests-module-2020d922c72f
+					r = requests.get(url,verify=False)
+				except Exception as e:
+					print(f'Can not get url: {url}: {str(e)}!')
+					exit(-1)
+
+		# set content encoding explicitely
+				r.encoding="utf-8"
 				
 				
 
@@ -83,21 +94,36 @@ class Crawler():
 				date=div.find('div',class_="row-price")
 
 				
-				print(date)
-				
-				
+				print(str(date))
+				rx = re.compile(r'(\d+)')
+				m =rx.search(str(date))
+
+				if m:
+					date = int(m.group(1))
+					print(date)
 					
-			#if date<3000:
 				a=div.find('a')
-				
-				
-				
-			
-				page_links.append( urljoin(BASE_URL,a['href']))
+		
+			page_links.append( urljoin(BASE_URL,a['href']))
 			if page_links:
 				self.seed =[*self.seed *page_links]
-				self.curent_page+=1#
+				self.curent_page+=1
 				self.get_seed()
+		def page_datas(self,html):
+			soup=BeautifulSoup(html,'html.paresr')
+			product=soup.find('divi' ,id="content" )
+			title=product.find('h1').getText(strip=True)
+			pat_date=product.find('div',class_="price")
+			size_li=product.find('b')
+			return{
+				'title':title,
+				'pat_date':pat_date,
+				'size_li':size_li
+			}
+			
+				
+
+			
 			
 		def run(self):
 			""" run the crawler for each url in seed
@@ -106,16 +132,17 @@ class Crawler():
 			"""
 
 			self.get_seed()
+
 			
 			
 			
-			for url in [1]:
-				page_html=self.get_html("https://www.jarcomputers.com/Laptopi_cat_2.html?ref=")
-				#date=self.get_rule_page(page_html)
+			for url in self.seed:
+				page_html=self.get_html(url)
+				date=self.get_page_data(page_html)
 				
 				
 			print('finishito')
-#if __name__ == '__main__':
+if __name__ == '__main__':
 	#base_url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref="
-	#crawler = Crawler(base_url)
-	#crawler.run()
+	crawler = Crawler()
+	crawler.run()
