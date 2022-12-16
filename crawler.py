@@ -62,11 +62,11 @@ class Crawler():
 		
 		for div in divs:
 			date = div.find('div',class_="price")
-			print(date)
+			
 			a = div.find('a')
 			#print(a['href'])
 			#page_links.append(a['href'])
-			#date = div.span.string
+			date = div.span.string
     		
 			rx = re.compile(r'(\d+)')
 	
@@ -74,49 +74,37 @@ class Crawler():
 			if m:
     		
 				date= int(m.group(1))
-				print(date)
+				#print(date)
 
 
 
 
 
 
-		if date <10:
+		if date <20:
 			a = div.find('a')
 			page_links.append( urljoin(BASE_URL,a['href']))
 				
 
-			if page_links:
+		if page_links:
 				self.seed = [*self.seed,*page_links]
 				self.curent_page+=1
 				self.get_seed()
 
 
-		return page_links
+				return page_links
+	def get_page(self,html):
+		soup=BeautifulSoup(html,'html.parser')
 
-	def get_page_data(self, html):
-			soup=BeautifulSoup(html,'html.paresr')
-			
-			product=soup.find('div' , id="product_info" )
-			print(product)
-			title=product.find('h1').getText(strip=True)
-			print(title)
-			pat_date=product.find('div',class_="price")
-			size_li=product.find('b')
-			
-			return{
-				'title':title,
-				'pat_date':pat_date,
-				'size_li':size_li
-			}
-			
-
-
-
-
-			print(html)
-
+		bonus=soup.find('div',class_="product_list")
+		price=soup.find('div',class_="price")
+		return{
+			'price':price
+		}
 		
+		
+
+
 	def run(self):
 			""" run the crawler for each url in seed
 						Use multithreading for each GET request
@@ -124,15 +112,17 @@ class Crawler():
 			"""
 
 			#self.get_seed(self)
-			self.get_seed()
-			print(f'Seed contains {len(self.seed)} urls')			
-			
+			#self.get_seed()
+			#print(f'Seed contains {len(self.seed)} urls')			
 			
 			
 			for url in self.seed:
 				page_html=self.get_html(url)
-				date=self.get_page_data(page_html)
+				get_page_link=self.get_page(page_html)
+				print(get_page_link)
 				
+			
+           
 				
 			print('finishito')
 if __name__ == '__main__':
