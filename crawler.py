@@ -8,7 +8,9 @@ from urllib.parse import urlparse
 from urllib.parse import urljoin
 
 
-BASE_URL=" https://www.jarcomputers.com"
+BASE_URL="https://bestpc.bg/"
+#"https://www.pic.bg/"
+#" https://www.jarcomputers.com"
 #"https://zora.bg/"
 		#"https://www.jarcomputers.com"
 
@@ -29,7 +31,7 @@ except:
 class Crawler():
 	def __init__(self):
 			self.curent_page=1
-			self.base_url="https://www.jarcomputers.com/Laptopi_cat_2.html?ref="
+			self.base_url="https://bestpc.bg/bg/laptopi-notebooks?p="
 			#"https://www.technomarket.bg/produkti/laptopi?page="
 			#"https://zora.bg/category/laptopi?page="
 			#"https://www.jarcomputers.com/Laptopi_cat_2.html?ref=1"
@@ -71,6 +73,9 @@ class Crawler():
 
 		if r.ok:
 			return r.text;
+	
+
+		pass
 	def get_seed(self):
 		
 		page_links = []
@@ -78,62 +83,59 @@ class Crawler():
 		html=self.get_html(page_url)
 
 		soup = BeautifulSoup(html,'html.parser')
-		product= soup.find ('div',id="products-container" )
+		product= soup.find('div', id="products" )#class_="product-grid-holder-new")
 		print(len(product))
 
-		divs = product.find_all('a',class_="brand-name")
-
-
+		divs = product.find_all('div' ,class_="productDiv") #class_="title")
 		print(len(divs))
-		for div in product:
-			date = div.find('li', class_="list_warranty")
-			#date= div.string
-			rx = re.compile(r'(\d+)')
-			m =rx.search(str(date))
-			if m:
-				date= int(m.group(1))
-				print(date)
-				
-			#if date < 24:
-
-				#print(date)
+		for div in divs:
+			price= div.find( 'span', itemprop="price")# class_="warranty-container")
+			#print(price)
+			for div in divs:
+				price =div.span.string
+				rx = re.compile(r'(\d+)')
+				m =rx.search(str(price))
+				print(m)
+				if m:
+					price= int(m.group(1))
+				if price <2000:
 			
-   
-
-	
 			
-		
-			a = div.find('a')
-			page_links.append( urljoin(BASE_URL,a['href']))
-			print(page_links)
+					a = div.find('a')
+					
+					page_links.append( urljoin(BASE_URL,a['href']))
+					print(page_links)
 
 
-		if page_links:
-				self.seed = [*self.seed,*page_links]
-				self.curent_page+=1
-				self.get_seed()
+				if page_links:
+					self.seed = [*self.seed,*page_links]
+					self.curent_page+=1
+					self.get_seed()
                
 
 
-				return page_links
+					return page_links
 
 	def get_page(self,html):
+		
 		soup=BeautifulSoup(html,'html.parser')
 
-		bonus=soup.find('ol',class_="product_list")
-		price=soup.find('div',class_="row-price")
+		bonus=soup.find('div', id="products" )
+		price=soup.find('span', itemprop="price")
 		
-		model=soup.find('span',class_="long_title description")
-		marka=soup.find('div',class_="brand-name").getText()
+		model=soup.find('div',class_="product-name").getText()
+		marka=soup.find('div' ,itemprop="description" ).getText()
+		
+
+		
 		return{
 			'price':price,
 			'model':model,
 			'marka':marka
 			
-		}
+			}
 	
-	
-
+		
 
 	def run(self):
 			""" run the crawler for each url in seed
@@ -147,7 +149,7 @@ class Crawler():
 			
 			
 			for url in [1]:
-				page_html=self.get_html("https://www.jarcomputers.com/Laptopi_cat_2.html?ref=")
+				page_html=self.get_html("https://bestpc.bg/bg/laptopi-notebooks?p=1")
 				
 				get_data_page=self.get_page(page_html)
 				print(get_data_page)
